@@ -2,8 +2,7 @@
 
 A portable development level Indy Node network, including a Ledger Browser. The Ledger Browser (for example the BC Gov's [Ledger for the GreenLight Demo Application](http://greenlight.bcovrin.vonx.io/)) allows a user to see the status of the nodes of a network and browse/search/filter the Ledger Transactions.
 
-`von-network` is being developed as part of the Verifiable Organizations Network (VON). For more information on VON see https://vonx.io.  Even, better - join in with what we are doing and contribute to VON and the Indy community.
-
+`von-network` is being developed as part of the Verifiable Organizations Network (VON). For more information on VON see https://vonx.io.  Even, better - join in with what we are doing and contribute to VON, Aries and Indy communities.
 
 ## The VON-Network Ledger Browser and API
 
@@ -19,79 +18,41 @@ By using the "Authenticate a new DID" part of the UI or posting the appropriate 
 
 In the `Domain` Ledger screen ([example](http://greenlight.bcovrin.vonx.io/browse/domain)), you can browse through all of the transactions that have been created on this instance of the Ledger.  As well, you can use a drop down filter to see only specific Ledger transaction types (`nym` - aka DID, `schema`, `CredDef`, etc.), and search for strings in the content of the transactions.
 
+## VON Network Quick Start Guide
+
+New to VON Network?  We have a [tutorial about using VON Network](docs/UsingVONNetwork.md) to get you started.
+
+Want to see a full demo that includes applications and verifiable credentials being issued? The [VON Quick Start Guide](https://github.com/bcgov/greenlight/blob/master/docker/VONQuickStartGuide.md) provides the instructions for running a local instance of a full demo of the components, including an Indy Network, an instance of [TheOrgBook](https://github.com/bcgov/TheOrgBook) and [GreenLight](https://github.com/bcgov/greenlight). This is a great way to see the **VON Network** in action.
+
 ## Indy-Cli Container Environment
 
-This repository also provides a fully containerized Indy-Cli environment which allows you to use the Indy-Cli without having to build or install the Indy-SDK or any of it's dependencies on your machine.
+This repository includes a fully containerized Indy-Cli environment, allowing you to use the Indy-Cli without having to build or install the Indy-SDK or any of its dependencies on your machine.
 
-The environment provides a set of batch script templates and a simple variable substitution layer that allows the scripts to be reused for a number of purposes.
+## Ledger Troubleshooting
 
-For examples of how to use this environment, refer to [Writing Transactions to a Ledger for an Un-privileged Author](./docs/Writing%20Transactions%20to%20a%20Ledger%20for%20an%20Un-privileged%20Author.md)
-
+Refer to the [Troubleshooting](./docs/Troubleshooting.md) document for some tips and tools you can use to troubleshoot issues with a ledger.
 
 ## VON Quick Start Guide
+The environment provides a set of batch script templates and a simple variable substitution layer that allows the scripts to be reused for a number of purposes.
 
-The [VON Quick Start Guide](https://github.com/bcgov/greenlight/blob/master/docker/VONQuickStartGuide.md) provides the instructions for running a local instance of the VON applications, including an Indy Network, an instance of [TheOrgBook](https://github.com/bcgov/TheOrgBook) and [GreenLight](https://github.com/bcgov/greenlight). This is a great way to see the **VON Network** in action.
+For examples of how to use this capability, refer to [Writing Transactions to a Ledger for an Un-privileged Author](./docs/Writing%20Transactions%20to%20a%20Ledger%20for%20an%20Un-privileged%20Author.md)
 
 ## Running the Network Locally
 
-1. First, install Docker. Download the installer for your operating system [here](https://store.docker.com/search?type=edition&offering=community). Once it is installed, keep the Docker daemon running in the background.
+The [tutorial about using VON Network](docs/UsingVONNetwork.md) has information on starting (and stopping) the network locally.
 
-2. Linux users will also need to [install docker-compose](https://github.com/docker/compose/releases). Mac and Windows users will have this already.
-
-3. Once Docker has been installed, open a terminal session, change directories to where you store repos, and clone the von-network repository:
-
-```bash
-git clone <repository url> von-network
-```
-
-4. Move to the new directory:
-
-```bash
-cd von-network
-```
-
-5. Build the docker images that will be used to run the Indy network containers (this process will take several minutes):
-
-```bash
-./manage build
-```
-
-The `./manage` script has a number of commands. Run it without arguments to see the set of options.
-
-6. Once the build process completes, you can test the build to make sure everything works properly:
-
-```bash
-./manage start
-```
-
-Monitor the logs for error messages as the nodes start up.
-
-7. Verify the network is running
-
-In a browser, go to [http://localhost:9000](http://localhost:9000). You should see the VON Indy Ledger Browser and the status of the four nodes of the Indy Network. All should show a lovely, complete blue circle. If not - check the logs in the terminal.
-
-8. Stopping the Network
-
-To stop the scrolling logs and get to a command prompt, hit **Ctrl-C**.  To stop and remove the network persistence (the Ledger), run:
-
-```bash
-./manage down
-```
-
-If necessary, you can use `stop` instead of `down` to stop the containers but retain the persistence.
-
-
-## Running the the web server in Docker against another ledger
+## Running the web server in Docker against another ledger
 
 1. Run docker to start the ledger, and pass in GENESIS_URL and LEDGER_SEED parameters:
 
-For example to connect to the STN:
+For example to connect to the Sovrin Test Network:
 
 ```bash
-./manage start-web \
-   GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis
+./manage build
+GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis ./manage start-web
 ```
 
+Note that it takes some time to get the transactions and status from the network. Once the UI appears, try getting the `Genesis Transaction` that the server started up properly.
 
 ## Running the the web server on your local machine
 
@@ -196,6 +157,21 @@ GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/so
     ./manage start public_ip_address WEB_SERVER_HOST_PORT=80 "LEDGER_INSTANCE_NAME=My Ledger" &
     ```
 
+### AWS EC2 Security considerations
+
+If you are installing on an Amazon EC2 node you may find the Indy nodes are failing to connect to each other. The signature for this will be a repeating message every 60 seconds when you view the logs via "./manage log"
+
+```bash
+node2_1 | 2020-05-07 23:56:30,728|NOTIFICATION|primary_connection_monitor_service.py|Node2:0 primary has been disconnected for too long
+node2_1 | 2020-05-07 23:56:30,729|INFO|primary_connection_monitor_service.py|Node2:0 The node is not ready yet so view change will not be proposed now, but re-scheduled.
+node2_1 | 2020-05-07 23:56:30,730|INFO|primary_connection_monitor_service.py|Node2:0 scheduling primary connection check in 60 sec
+node2_1 | 2020-05-07 23:56:30,730|NOTIFICATION|primary_connection_monitor_service.py|Node2:0 primary has been disconnected for too long
+node2_1 | 2020-05-07 23:56:30,730|INFO|primary_connection_monitor_service.py|Node2:0 The node is not ready yet so view change will not be proposed now, but re-scheduled.
+```
+
+The Indy nodes are configured to talk to each other via their "public" address not the Virtual Private Cloud address of the EC2 node. It is common practice to tightly restrict traffic inbound to public IPs when first setting up a deployment in AWS.  You will need to adjust the Inbound and Outbound traffic rules on your Security Groups to allow traffic specifically from the public EC2 address.
+
+
 ## Connecting to the Network
 
 ### With the CLI
@@ -250,7 +226,6 @@ See [von-connector](https://github.com/nrempel/von-connector) for an example.
 ## Extra Features for Development
 
 Running BCovrin also runs a thin webserver (at [http://localhost:9000](http://localhost:9000) when using docker) to expose some convenience functions:
-
 
 #### Genesis Transaction Exposed
 
